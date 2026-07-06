@@ -5,7 +5,7 @@ Created with 🫖 and 🤍
 
 figma.showUI(__html__, {
   width: 600,
-  height: 650,
+  height: 630,
   title: "JSONify - Created by Denise Kolodzey",
 });
 
@@ -13,12 +13,15 @@ figma.showUI(__html__, {
 Recursively builds an object from Figma scene nodes
 ------------------------------------------------------------------ */
 
+type JsonOutputValue = string | string[];
+type JsonOutput = Record<string, JsonOutputValue>;
+
 async function buildJsonOutput(
   root: SceneNode
-): Promise<{ [key: string]: any }> {
+): Promise<JsonOutput> {
   if (!root) return {};
 
-  let jsonOutput: { [key: string]: any } = {};
+  const jsonOutput: JsonOutput = {};
 
   const traverse = (node: SceneNode): void => {
     if (node.name.startsWith("exclude-")) {
@@ -27,8 +30,8 @@ async function buildJsonOutput(
 
     // --- Handle groups of text layers ---
     if (node.type === "GROUP") {
-      let textArray: string[] = [];
-      for (let child of node.children) {
+      const textArray: string[] = [];
+      for (const child of node.children) {
         if (child.type === "TEXT") {
           const textContent = (child as TextNode).characters;
 
@@ -63,7 +66,7 @@ async function buildJsonOutput(
 
     // --- If the node has children (e.g., FrameNode), process them recursively ---
     else if ("children" in node && node.children) {
-      for (let child of node.children) {
+      for (const child of node.children) {
         traverse(child);
       }
     }
@@ -82,7 +85,7 @@ Processes the current selection and sends JSON output to the UI
 async function handleSelection() {
   const selection = figma.currentPage.selection;
 
-  let combinedJsonOutput: { [key: string]: any } = {};
+  const combinedJsonOutput: JsonOutput = {};
 
   // --- Process each selected node ---
   for (const node of selection) {
